@@ -13,20 +13,34 @@ private:
     double Student_Percentage;
     char Student_Grade;
     bool flag;
+
     void CalculateGrade();
 
 public:
     student();
+
     void getdata();
+
     void CheckForDuplicationInFile();
+
     void showdata();
+
     void TabularDisplay();
+
     int GetStudentRollNo();
+
     void ShowStudentRecord(int);
+
+    void Write_Student_Record_In_File();
+
+    void Update_Student_Record(int);
 };
 
 void intro();
+
 void entry_menu();
+
+void display_all();
 
 int main() {
     system("clear");
@@ -34,7 +48,7 @@ int main() {
     char ch;
     student std_obj;
     cout.setf(ios::fixed | ios::showpoint);
-    cout<<setprecision(2);
+    cout << setprecision(2);
     intro();
     do {
         system("clear");
@@ -65,29 +79,95 @@ int main() {
     return 0; // main ends here
 }
 
+// Constructor
+student::student() {
+    ofstream outFile("student.dat", ios::binary | ios::app);
+    outFile.close();
+    ofstream outDFile("DuplicatedCheckingFile.txt", ios::app);
+    outDFile.close();
+}
+
 void intro() {
     cout << "\n\n\n**** WELCOME TO STUDENT DATABASE MANAGEMENT AND RESULT CALCULATION SYSTEM ****\n\n";
 }
 
-void entry_menu()
-{
+void entry_menu() {
+    char ch;
+    int num;
+    student std;
+    system("clear");
 
+    cout << "\n\n\n\t\t\tSTUDENT DATABASE MANAGEMENT SYSTEM MENU";
+    cout << "\n\n\t1. CREATE STUDENT RECORD";
+    cout << "\n\n\t2. SHOW RECORDS OF ALL STUDENTS";
+    cout << "\n\n\t3. SEARCH STUDENT RECORDS";
+    cout << "\n\n\t4. UPDATE STUDENT RECORD";
+    cout << "\n\n\t5. DELETE STUDENT RECORD";
+    cout << "\n\n\t6. BACK TO HOME SCREEN";
+    cout << "\n\n\n\n\tPlease Enter Your Choice (1-6) ";
+
+    cin >> ch;
+    system("clear");
+
+    switch (ch) {
+        case '1':
+            std.Write_Student_Record_In_File();
+            break;
+        case '2':
+            display_all();
+            break;
+        case '3':
+            cout << "\n\n\t Please Enter The Roll Number";
+            cin >> num;
+            std.ShowStudentRecord(num);
+            break;
+        case '4':
+            cout << "\n\n\t Please Enter The Roll Number";
+            cin >> num;
+            std.Update_Student_Record(num);
+            break;
+        case '5':
+            break;
+        case '6':
+            break;
+        default:
+            cout << "\a";
+            entry_menu();
+    }
 }
 
-void student::getdata()
-{
+void display_all() {
+    student st;
+    ifstream inFile;
+    inFile.open("student.dat", ios::binary);
+    if (!inFile) {
+        cout << "File could not be opened !! Press any key...";
+        cin.ignore();
+        cin.get();
+        return;
+    }
+    cout << "\n\n\n\t\tDISPLAY ALL RECORDS !!!\n\n";
+    while (inFile.read(reinterpret_cast<char *> (&st), sizeof(student))) {
+        st.showdata();
+        cout << "\n\n============================================\n";
+    }
+    inFile.close();
+    cin.ignore();
+    cin.get();
+}
+
+void student::getdata() {
     flag = false;
     cout << "\nEnter the roll no of the student = ";
     cin >> Roll_No;
     CheckForDuplicationInFile();
-    if(flag==true)
-    {
+    if (flag == true) {
         cout << "Error duplicate record" << endl;
         return;
     }
     cout << "\n\nEnter the name of student: ";
     cin.ignore();
-    cin.getline(Student_Name,50);
+    cin.getline(Student_Name, 50);
     cout << "Enter the marks in Social Studies out of 100: ";
     cin >> Social_Studies_Marks;
     cout << "Enter the marks in Statistics out of 100: ";
@@ -97,13 +177,12 @@ void student::getdata()
     cout << "Enter the marks in English out of 100: ";
     cin >> English_Marks;
     cout << "Enter the marks in Computer Science out of 100: ";
-    cin >>Computer_Marks;
+    cin >> Computer_Marks;
 
     CalculateGrade();
 }
 
-void student::showdata()
-{
+void student::showdata() {
     cout << "\nRoll Number of student = " << Roll_No;
     cout << "\nName of student = " << Student_Name;
     cout << "\nMarks in Social Studies = " << Social_Studies_Marks;
@@ -115,82 +194,119 @@ void student::showdata()
     cout << "\nGarde Of Student = " << Student_Grade;
 }
 
-// Constructor
-student::student()
-{
-    ofstream outFile("student.dat", ios::binary | ios::app);
-    outFile.close();
-    ofstream outDFile("DuplicatedCheckingFile.txt", ios::app);
-    outDFile.close();
+void student::Write_Student_Record_In_File() {
+    ofstream outFile;
+    outFile.open("student.dat", ios::binary | ios::app);
+
+    getdata();
+
+    if (flag == false) {
+        outFile.write(reinterpret_cast<char *>(this), sizeof(student));
+        outFile.close();
+        cout << "\n\n student record has been created";
+    }
+
+    if (flag == true) {
+        cout << "record not created due to duplication\n";
+        outFile.close();
+    }
+    cin.ignore();
+    cin.get();
 }
 
-void student::CheckForDuplicationInFile()
-{
+void student::Update_Student_Record(int n) {
+    bool found = false;
+    fstream File;
+    File.open("student.dat", ios::binary | ios::in | ios::out);
+    if (!File) {
+        cout << "File could not be opened. Press any key to continue";
+        cin.ignore();
+        cin.get();
+        return;
+    }
+    while (!File.eof() && found == false) {
+        File.read(reinterpret_cast<char *> (this), sizeof(student));
+        if (GetStudentRollNo() == n) {
+            showdata();
+            cout << "\n\nPlease Enter The New Details of Student" << endl;
+            getdata();
+            if (flag == false) {
+                int pos = (-1) * static_cast<int>(sizeof(*this));
+                File.seekp(pos, ios::cur);
+                File.write(reinterpret_cast<char *> (this), sizeof(student));
+            }
+            found = true;
+        }
+    }
+    File.close();
+    if (flag == true) {
+        cout << "could not update because this Roll Number already exists";
+    }
+    if (found == false) {
+        cout << "\n\n Record Not Found";
+    }
+    cin.ignore();
+    cin.get();
+}
+
+void student::CheckForDuplicationInFile() {
     int Current_RollNo = 0;
     flag = false;
     ifstream infile("DuplicateCheckingFile.txt");
-    while(!infile.eof())
-    {
+    while (!infile.eof()) {
         infile >> Current_RollNo;
-        if(Current_RollNo==Roll_No)
-        {
+        if (Current_RollNo == Roll_No) {
             flag = true;
         }
     }
     infile.close();
-    if(flag==false)
-    {
+    if (flag == false) {
         ofstream outfile("DuplicateCheckingFile.txt", ios::app);
         outfile << "\n" << Roll_No;
         outfile.close();
     }
 }
 
-void student::CalculateGrade()
-{
+void student::CalculateGrade() {
     Student_Percentage = (Social_Studies_Marks + Statistics_Marks + Maths_Marks + English_Marks + Computer_Marks) / 5.0;
-    if(Student_Percentage>=80)
+    if (Student_Percentage >= 80)
         Student_Grade = 'A';
-    if(Student_Percentage >= 70 && Student_Percentage < 80)
+    if (Student_Percentage >= 70 && Student_Percentage < 80)
         Student_Grade = 'B';
-    if(Student_Percentage >= 60 && Student_Percentage < 70)
+    if (Student_Percentage >= 60 && Student_Percentage < 70)
         Student_Grade = 'C';
-    if(Student_Percentage < 60)
+    if (Student_Percentage < 60)
         Student_Grade = 'F';
 }
 
-void student::TabularDisplay()
-{
-    cout << Roll_No << setw(4) << Student_Name << setw(20-strlen(Student_Name)) << Social_Studies_Marks << setw(6) << Statistics_Marks << setw(6) << Maths_Marks << setw(6) << English_Marks << setw(8) << Computer_Marks << setw(8) << Student_Percentage << setw(8) << Student_Grade << endl;
+void student::TabularDisplay() {
+    cout << Roll_No << setw(4) << Student_Name << setw(20 - strlen(Student_Name)) << Social_Studies_Marks << setw(6)
+         << Statistics_Marks << setw(6) << Maths_Marks << setw(6) << English_Marks << setw(8) << Computer_Marks
+         << setw(8) << Student_Percentage << setw(8) << Student_Grade << endl;
 }
 
-int student::GetStudentRollNo()
-{
+int student::GetStudentRollNo() {
     return Roll_No;
 }
 
-void student::ShowStudentRecord(int n)
-{
+void student::ShowStudentRecord(int n) {
     ifstream inFile;
     inFile.open("student.dat", ios::binary);
-    if(!inFile)
-    {
+    if (!inFile) {
         cout << "File could not be opened. Press any key to continue";
         cin.ignore();
         cin.get();
         return;
     }
     bool flag = false;
-    while(inFile.read(reinterpret_cast<char *> (this), sizeof(student)))
-    {
-        if(GetStudentRollNo() == n)
-        {
+    while (inFile.read(reinterpret_cast<char *> (this), sizeof(student))) {
+        if (GetStudentRollNo() == n) {
             showdata();
             flag = true;
         }
     }
     inFile.close();
-    if(flag==false) {
+    if (flag == false) {
         cout << "\n\nrecord does not exist";
         cin.ignore();
         cin.get();
