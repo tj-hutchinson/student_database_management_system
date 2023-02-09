@@ -48,7 +48,7 @@ build cmake_object_order_depends_target_student_database_management_system: phon
 
 build CMakeFiles/student_database_management_system.dir/main.cpp.o: CXX_COMPILER__student_database_management_system_Debug /Users/tjh/CLionProjects/student_database_management_system/main.cpp || cmake_object_order_depends_target_student_database_management_system
   DEP_FILE = CMakeFiles/student_database_management_system.dir/main.cpp.o.d
-  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk -std=gnu++14
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++14
   OBJECT_DIR = CMakeFiles/student_database_management_system.dir
   OBJECT_FILE_DIR = CMakeFiles/student_database_management_system.dir
   TARGET_COMPILE_PDB = CMakeFiles/student_database_management_system.dir/
@@ -63,7 +63,7 @@ build CMakeFiles/student_database_management_system.dir/main.cpp.o: CXX_COMPILER
 # Link the executable student_database_management_system
 
 build student_database_management_system: CXX_EXECUTABLE_LINKER__student_database_management_system_Debug CMakeFiles/student_database_management_system.dir/main.cpp.o
-  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk
   OBJECT_DIR = CMakeFiles/student_database_management_system.dir
   POST_BUILD = :
   PRE_LINK = :
