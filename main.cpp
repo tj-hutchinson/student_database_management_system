@@ -4,6 +4,8 @@
 
 using namespace std;
 
+int RollNoToBeUpdated = 0;
+
 // here we will create Student Class for the system
 class student {
 private:
@@ -34,6 +36,10 @@ public:
     void Write_Student_Record_In_File();
 
     void Update_Student_Record(int);
+
+    void Delete_Student_Record(int);
+
+    void Delete_From_Duplicate_File(int);
 };
 
 void intro();
@@ -127,6 +133,9 @@ void entry_menu() {
             std.Update_Student_Record(num);
             break;
         case '5':
+            cout << "\n\n\t Please Enter The Roll Number";
+            cin >> num;
+            std.Delete_Student_Record(num);
             break;
         case '6':
             break;
@@ -160,7 +169,10 @@ void student::getdata() {
     flag = false;
     cout << "\nEnter the roll no of the student = ";
     cin >> Roll_No;
-    CheckForDuplicationInFile();
+    if(RollNoToBeUpdated != Roll_No)
+    {
+        CheckForDuplicationInFile();
+    }
     if (flag == true) {
         cout << "Error duplicate record" << endl;
         return;
@@ -215,6 +227,7 @@ void student::Write_Student_Record_In_File() {
 }
 
 void student::Update_Student_Record(int n) {
+    RollNoToBeUpdated = n;
     bool found = false;
     fstream File;
     File.open("student.dat", ios::binary | ios::in | ios::out);
@@ -245,6 +258,67 @@ void student::Update_Student_Record(int n) {
     if (found == false) {
         cout << "\n\n Record Not Found";
     }
+    cin.ignore();
+    cin.get();
+
+    if(flag == false && found == true && RollNoToBeUpdated != Roll_No)
+    {
+        Delete_From_Duplicate_File(n);
+    }
+    RollNoToBeUpdated = 0;
+}
+
+void student::Delete_Student_Record(int n)
+{
+    ifstream inFile;
+    inFile.open("student.dat",  ios::binary);
+    if (!inFile)
+    {
+        cout<<"\nFile could not be opened..Press any key";
+        cin.ignore();
+        cin.get();
+        return;
+    }
+    ofstream outFile;
+    outFile.open("Temp.dat", ios::out);
+    inFile.seekg(0,ios::beg);
+    while (inFile.read(reinterpret_cast<char *> (this), sizeof(student)))
+    {
+        if (GetStudentRollNo() != n)
+        {
+            outFile.write(reinterpret_cast<char *> (this), sizeof(student));
+        }
+    }
+    outFile.close();
+    inFile.close();
+    remove("student.dat");
+    rename("Temp.dat", "student.dat");
+    cout << "\n\nRecord deleted.. press any key";
+    cin.ignore();
+    cin.get();
+
+    Delete_From_Duplicate_File(n);
+}
+
+void student::Delete_From_Duplicate_File (int RollNoOfRecord)
+{
+    int Current_RollNo;
+    ifstream InFile("DuplicateCheckFile.txt");
+    ofstream OutFile("TempFile.txt");
+    InFile.seekg(0,ios::beg);
+    while(!InFile.eof())
+    {
+        InFile>>Current_RollNo;
+        if(Current_RollNo!=RollNoOfRecord)
+        {
+            OutFile<<"\n"<<Current_RollNo;
+        }
+    }
+    InFile.close();
+    OutFile.close();
+    remove("DuplicateCheckingFile.txt");
+    rename("TempFile.txt", "DuplicateCheckingFile.txt");
+
     cin.ignore();
     cin.get();
 }
