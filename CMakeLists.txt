@@ -3,4 +3,4 @@ project(student_database_management_system)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(student_database_management_system main.cpp)
+add_executable(student_database_management_system main.cpp student.h student.cpp)
